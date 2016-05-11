@@ -12,6 +12,7 @@
 #ifndef FT_OTOOL_H
 # define FT_OTOOL_H
 
+# include "libft.h"
 # include <sys/stat.h>
 # include <unistd.h>
 # include <sys/mman.h>
@@ -20,7 +21,6 @@
 # include <stdlib.h>
 # include <mach-o/loader.h>
 # include <mach-o/nlist.h>
-# include "libft.h"
 
 typedef struct mach_header_64		header;
 typedef struct load_command			loadcmd;

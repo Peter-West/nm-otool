@@ -10,43 +10,46 @@
 #                                                                              #
 #******************************************************************************#
 
-NAME1		= ft_nm
+NAME1 := ft_nm
 
-NAME2		= ft_otool
+# NAME2 := ft_otool
 
-SRC1		= ft_nm.c symtype.c
+SRC1 := ft_nm.c symtype.c symlist.c print.c sort.c
 
-SRC2		= ft_otool.c
+# SRC2 := ft_otool.c
 
-OBJ1		= $(SRC1:.c=.o)
+CC := clang
 
-OBJ2		= $(SRC2:.c=.o)
+CFLAGS := -Werror -Wall -Wextra -g
 
-CC			= gcc
+LIB_LIBFT := libft/libft.a
 
-CFLAGS		= -Werror -Wall -Wextra -g
+INCLUDES := -I libft/includes
 
-LIB_LIBFT	= -L libft -lft
+OBJ1 := $(SRC1:.c=.o)
 
-INCLUDES	= -I libft/includes
+OBJ2 := $(SRC2:.c=.o)
 
-all:	$(NAME1)
-		$(NAME2)
+all: $(NAME1)
 
-$(NAME):
+build:
 	make -C libft/
+
+$(NAME1):
 	$(CC) $(CFLAGS) -c $(SRC1) $(INCLUDES)
 	$(CC) $(CFLAGS) -o $(NAME1) $(OBJ1) $(LIB_LIBFT)
-	$(CC) $(CFLAGS) -c $(SRC2) $(INCLUDES)
-	$(CC) $(CFLAGS) -o $(NAME2) $(OBJ2) $(LIB_LIBFT)
+
+# $(NAME2):
+# 	$(CC) $(CFLAGS) -c $(SRC2) $(INCLUDES)
+# 	$(CC) $(CFLAGS) -o $(NAME2) $(OBJ2) $(LIB_LIBFT)
 
 clean:
-	rm -f $(OBJ1)
-	rm -f $(OBJ2)
+	rm -rf $(OBJ1)
+	# rm -rf $(OBJ2)
 
 fclean: clean
-	rm -f $(NAME1)
-	rm -f $(NAME2)
+	rm -rf $(NAME1)
+	# rm -rf $(NAME2)
 
 re: fclean all
 

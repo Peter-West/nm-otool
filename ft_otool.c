@@ -26,6 +26,7 @@ void			ft_print(int nsyms, int stroff, int symoff, void *mem)
 	char			*hex;
 	section_64		*s64;
 
+	(void)hex;
 	i = 0;
 	strtab = mem + stroff;
 	n64 = mem + symoff;
@@ -36,7 +37,7 @@ void			ft_print(int nsyms, int stroff, int symoff, void *mem)
 		{
 			if (ft_strequ(s64->sectname, "__text"))
 			{
-				ft_output()
+				ft_output();
 			}
 		}
 		s64 = (void*)s64 + sizeof(section_64);

@@ -13,6 +13,7 @@
 #ifndef FT_NM_H
 # define FT_NM_H
 
+# include "libft.h"
 # include <sys/stat.h>
 # include <unistd.h>
 # include <sys/mman.h>
@@ -21,7 +22,6 @@
 # include <stdlib.h>
 # include <mach-o/loader.h>
 # include <mach-o/nlist.h>
-# include "libft.h"
 
 typedef struct mach_header_64		header;
 typedef struct load_command			loadcmd;
@@ -30,20 +30,31 @@ typedef struct symtab_command		symtab;
 typedef struct nlist_64				nlist_64;
 typedef struct section_64			section_64;
 
-typedef struct						s_list
+typedef struct 						s_list
 {
 	void							*data;
-	struct s_list					*next;	
+	struct s_list					*next;
 }									t_list;
 
-typedef struct						output
+typedef struct						s_sym
 {
 	char							*addr;
-	char							*symtype;
-	char							*symtab;
-}									out;
+	unsigned char					symtype;
+	char							*name;
+}									t_sym;
 
-char			ft_symtype(nlist_64 *n64, section_64 *s64);
-void			ft_fill_list(t_list **list, void *data);
+typedef struct						s_env
+{
+	t_list							*sym;
+	void							*mem;
+	symtab							*stc;
+	header							*h;
+	loadcmd							*lc;
+}									t_env;
+
+char			ft_symtype(char type, nlist_64 n64, section_64 *s64);
+void			add_to_list(t_list **list, void *data);
+void			ft_print(t_env *e);
+void			ft_sort(t_list **sym);
 
 #endif /* !FT_NM_H */

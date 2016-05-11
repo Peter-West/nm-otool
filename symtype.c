@@ -13,36 +13,54 @@
 #include "ft_nm.h"
 #include <stdio.h>
 
-void			ft_fill_list(t_list **list, void *data)
+char			ft_symtype(char type, nlist_64 n64, section_64 *s64)
 {
-	t_list		*new;
-	t_list		*tmp;
-	new = (t_list*)malloc(sizeof(t_list));
-	new->data = data;
-	new->next = NULL;
-	if (!*list)
-		*list = new;
-	else
+	unsigned char	c;
+
+	c = '?';
+	(void)s64;
+	printf("\nn_sect : %d\n", n64.n_sect);
+	printf("name ? %s\n", s64[n64.n_sect].segname);
+	printf("name ? %s\n", s64[n64.n_sect].sectname);
+	if (type & N_STAB)
+		c = '-';
+	else if ((type & N_TYPE) == N_UNDF)
 	{
-		tmp = *list;
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = new;
+		c = 'u';
+		if (n64.n_value != 0)
+			c = 'c';
 	}
-}
+	else if ((type & N_TYPE) == N_PBUD)
+		c = 'u';
+	else if ((type & N_TYPE) == N_ABS)
+		c = 'a';
+	else if ((type & N_TYPE) == N_SECT)
+	{
+		// while()
 
-/*
-char			ft_symtype(nlist_64 n64, section_64 *s64)
-{
-	char				type;
+		/*if (n64.n_sect == SECT_TEXT)
+			c = 't';
+		else if (!ft_strcmp(n64.n_sect, SECT_DATA))
+			c = 'd';
+		else if (!ft_strcmp(n64.n_sect, SECT_BSS))
+			c = 'b';
+		else
+			c = 's';*/
+	}
+	else if ((type & N_TYPE) == N_INDR)
+		c = 'i';
+	if ((n64.n_type & N_EXT) && c != '?')
+		c = ft_toupper(c);
 
-	type = 'T';
-	// if (n64.n_type == N_STAB)
-
-	if (s64 == NO_SECT)
+/*	if (s64 == NO_SECT)
 		return (type);
+	// printf("s64[n_sect].sectname : %s\n", s64[n_sect].sectname);
+	// printf("s64[n_sect].segname : %s\n", s64[n_sect].segname);
+	if (ft_strcmp(s64[n_sect].sectname, SECT_TEXT) == 0)
+		printf("***Yo\n");
 	if (ft_strequ(s64->segname, "__TEXT"))
 	{
+		
 		if (ft_strequ(s64->sectname, "__text"))
 			type = 'T';
 		else if (ft_strequ(s64->sectname, "__cstring"))
@@ -57,10 +75,10 @@ char			ft_symtype(nlist_64 n64, section_64 *s64)
 	else if (ft_strequ(s64->segname, "__IMPORT"))
 		type = 'I';
 	if (!(n64.n_type & N_EXT))
-		type += 32;
-	return (type);
+		type += 32;*/
+	return (c);
 }
-
+/*
 char		secto(t_lsection *sec, unsigned int n_sect)
 {
 	t_section	*tmp;
@@ -82,8 +100,8 @@ char		secto(t_lsection *sec, unsigned int n_sect)
 		tmp = tmp->next;
 	}
 	return ('S');
-}
-
+}*/
+/*
 char	typing(unsigned int type, unsigned int n_sect, t_ls *sec, int addr)
 {
 	char	ret;

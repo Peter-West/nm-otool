@@ -31,77 +31,86 @@ void			*ft_get_file(size_t size, int fd)
 	return (read);
 }
 
-void			ft_print(int nsyms, int stroff, int symoff, void *mem)
+
+
+void			add_sym(t_env *e)
 {
-	int				i;
+	unsigned int	i;
 	nlist_64		*n64;
 	char			*strtab;
 	char			*hex;
-	t_list			*list;
 	// char			type;
-	// section_64		*s64;
+	section_64		*s64;
+	t_sym			*sym;
 
-	list = NULL;
 	i = 0;
-	// s64 = mem + sizeof(segcmd_64*);
-	strtab = mem + stroff;
-	n64 = mem + symoff;
-	while (i < nsyms)
+	s64 = e->mem + sizeof(segcmd_64*);
+	strtab = e->mem + e->stc->stroff;
+	n64 = e->mem + e->stc->symoff;
+	printf("nsyms : %d\n", e->stc->nsyms);
+	while (i < e->stc->nsyms)
 	{
-		hex = ft_ltoahex(n64[i].n_value);
-		ft_data(hex, strtab + n64[i].n_un.n_strx, list);
-		/*if (n64[i].n_type & N_EXT)
+		if (n64[i].n_type & N_EXT)
 		{
+			sym = (t_sym*)malloc(sizeof(t_sym));
 			hex = ft_ltoahex(n64[i].n_value);
 			if (n64[i].n_value == 0)
 			{
 				hex[0] = ' ';
-				ft_putstr("                ");
+				sym->addr = ft_strjoin("                ", hex);
 			}
 			else
-				ft_putstr("00000000");
-			type = ft_symtype(n64[i], s64);
-			ft_putstr(hex);
-			ft_putstr(" ");
-			ft_putchar(type);
-			ft_putstr(" ");
-			ft_putendl(strtab + n64[i].n_un.n_strx);
-		}*/
-		// s64 = (void*)s64 + sizeof(section_64);
+				sym->addr = ft_strjoin("00000000", hex);
+			sym->symtype = ft_symtype(n64[i].n_type, n64[i], s64);
+			sym->name = strtab + n64[i].n_un.n_strx;
+			add_to_list(&e->sym, sym);
+		}
+		s64 = (void*)s64 + sizeof(section_64);
 		i++;
 	}
+	ft_sort(&e->sym);
 }
-
-void			ft_handle_64(void *mem)
+void			ft_handle_64(t_env *e)
 {
-	header			*h;
-	loadcmd			*lc;
 	int				i;
-	symtab			*stc;
+	// segcmd_64		*sg64;
 
 	i = 0;
-	h = (header*)mem;
-	lc = mem + sizeof(*h);
-	while(i < (int)h->ncmds)
+	e->h = (header*)e->mem;
+	e->lc = e->mem + sizeof(*e->h);
+	while(i < (int)e->h->ncmds)
 	{
-		if (lc->cmd == LC_SYMTAB)
+		if (e->lc->cmd == LC_SYMTAB)
 		{
-			stc = (symtab*)lc;
-			ft_print(stc->nsyms, stc->stroff, stc->symoff, mem);
+			e->stc = (symtab*)e->lc;
+			add_sym(e);
 		}
-		lc = (void*)lc + lc->cmdsize;
+	/*	else if (lc->cmd == LC_SEGMENT64)
+		{
+			sg64 = (segcmd_64*)lc;
+			printf("nsec: %d\n", sg64->nsects);
+
+		}*/
+		e->lc = (void*)e->lc + e->lc->cmdsize;
 		i++;
 	} 
 }
 
-void			ft_nm(void *mem)
+void			ft_nm(t_env *e)
 {
 	unsigned int		magic_nb;
 
-	magic_nb = *(int*)mem;
+	magic_nb = *(int*)e->mem;
 	if (magic_nb == MH_MAGIC_64)
-		ft_handle_64(mem);
+		ft_handle_64(e);
+	else
+		printf("not managed yet\n");
 }
+
+// int			ft_error_file_opening()
+// {
+// 	return ()
+// }
 
 
 
@@ -109,8 +118,10 @@ int				main(int argc, char **argv)
 {
 	int				fd;
 	size_t			size;
-	void			*mem;
+	// void			*mem;
+	t_env			e;
 
+	e.sym = NULL;
 	if (argc > 1)
 	{
 		if ((fd = open(argv[1], O_RDONLY)) == -1)
@@ -123,13 +134,14 @@ int				main(int argc, char **argv)
 			ft_putstr_fd("Error getting size\n", 2);
 			return (-1);
 		}
-		if (!(mem = ft_get_file(size, fd)))
+		if (!(e.mem = ft_get_file(size, fd)))
 		{	
 			ft_putstr_fd("Error while reading memory\n", 2);
 			return (-1);
 		}
-		ft_nm(mem);
-		if (munmap(mem, size) < 0)
+		ft_nm(&e);
+		ft_print(&e);
+		if (munmap(e.mem, size) < 0)
 		{
 			ft_putstr_fd("Munmap error\n", 2);
 			return (-1);
