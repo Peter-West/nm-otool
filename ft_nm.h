@@ -43,16 +43,25 @@ typedef struct						s_sym
 	char							*name;
 }									t_sym;
 
+typedef struct						s_sect
+{
+	int								nb;
+	char							*name;
+}									t_sect;
+
 typedef struct						s_env
 {
 	t_list							*sym;
+	t_list							*sects;
 	void							*mem;
 	symtab							*stc;
 	header							*h;
 	loadcmd							*lc;
+	segcmd_64						*sg64;
+	section_64						*s64;
 }									t_env;
 
-char			ft_symtype(char type, nlist_64 n64, section_64 *s64);
+char			ft_symtype(char type, nlist_64 n64, t_env *e);
 void			add_to_list(t_list **list, void *data);
 void			ft_print(t_env *e);
 void			ft_sort(t_list **sym);

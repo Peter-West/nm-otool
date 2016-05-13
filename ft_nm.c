@@ -31,8 +31,6 @@ void			*ft_get_file(size_t size, int fd)
 	return (read);
 }
 
-
-
 void			add_sym(t_env *e)
 {
 	unsigned int	i;
@@ -40,11 +38,11 @@ void			add_sym(t_env *e)
 	char			*strtab;
 	char			*hex;
 	// char			type;
-	section_64		*s64;
+	// section_64		*s64;
 	t_sym			*sym;
 
 	i = 0;
-	s64 = e->mem + sizeof(segcmd_64*);
+	// s64 = e->mem + sizeof(header) + sizeof(segcmd_64);
 	strtab = e->mem + e->stc->stroff;
 	n64 = e->mem + e->stc->symoff;
 	printf("nsyms : %d\n", e->stc->nsyms);
@@ -61,36 +59,65 @@ void			add_sym(t_env *e)
 			}
 			else
 				sym->addr = ft_strjoin("00000000", hex);
-			sym->symtype = ft_symtype(n64[i].n_type, n64[i], s64);
+			sym->symtype = ft_symtype(n64[i].n_type, n64[i], e);
 			sym->name = strtab + n64[i].n_un.n_strx;
 			add_to_list(&e->sym, sym);
 		}
-		s64 = (void*)s64 + sizeof(section_64);
+		else if ((n64[i].n_type & N_TYPE))
+		{
+			sym->name = strtab + n64[i].n_un.n_strx;
+			printf("BONUS : %s\n", sym->name);
+		}
+		// s64 = (void*)s64 + sizeof(section_64);
 		i++;
 	}
 	ft_sort(&e->sym);
 }
+
+void			get_sects(t_env *e)
+{
+	unsigned int			i;
+	section_64				*s64;
+	static int				nb = 1;
+	t_sect					*sec;
+	
+	i = 0;
+	s64 = (void*)e->sg64 + sizeof(*e->sg64);
+	while (i < e->sg64->nsects)
+	{
+		printf("sectname : %s\n", s64->sectname);
+		sec = (t_sect*)malloc(sizeof(t_sect));
+		sec->name = s64->sectname;
+		sec->nb = nb++;
+		add_to_list(&e->sects, sec);
+		s64 = (void*)s64 + sizeof(*s64);
+		i++;
+	}
+}
+
 void			ft_handle_64(t_env *e)
 {
 	int				i;
-	// segcmd_64		*sg64;
 
 	i = 0;
 	e->h = (header*)e->mem;
 	e->lc = e->mem + sizeof(*e->h);
 	while(i < (int)e->h->ncmds)
 	{
+		
+		if (e->lc->cmd == LC_SEGMENT_64)
+		{
+			e->sg64 = (segcmd_64*)e->lc;
+			printf("segname: %s\n", e->sg64->segname);
+			printf("nsec: %d\n", e->sg64->nsects);
+			get_sects(e);
+		}
 		if (e->lc->cmd == LC_SYMTAB)
 		{
 			e->stc = (symtab*)e->lc;
 			add_sym(e);
 		}
-	/*	else if (lc->cmd == LC_SEGMENT64)
-		{
-			sg64 = (segcmd_64*)lc;
-			printf("nsec: %d\n", sg64->nsects);
-
-		}*/
+		
 		e->lc = (void*)e->lc + e->lc->cmdsize;
 		i++;
 	} 
@@ -107,21 +134,14 @@ void			ft_nm(t_env *e)
 		printf("not managed yet\n");
 }
 
-// int			ft_error_file_opening()
-// {
-// 	return ()
-// }
-
-
-
 int				main(int argc, char **argv)
 {
 	int				fd;
 	size_t			size;
-	// void			*mem;
 	t_env			e;
 
 	e.sym = NULL;
+	e.sects = NULL;
 	if (argc > 1)
 	{
 		if ((fd = open(argv[1], O_RDONLY)) == -1)

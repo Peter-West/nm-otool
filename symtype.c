@@ -13,15 +13,39 @@
 #include "ft_nm.h"
 #include <stdio.h>
 
-char			ft_symtype(char type, nlist_64 n64, section_64 *s64)
+char			match_sect(char c, t_env *e, uint8_t s)
+{
+	t_list		*tmp;
+	t_sect		*sect;
+
+	tmp = e->sects;
+	while (tmp)
+	{
+		sect = ((t_sect*)(tmp->data));
+		if (s == sect->nb)
+		{
+			if (!ft_strcmp(sect->name, SECT_TEXT))
+				c = 't';
+			else if (!ft_strcmp(sect->name, SECT_DATA))
+				c = 'd';
+			else if (!ft_strcmp(sect->name, SECT_BSS))
+				c = 'b';
+			else
+				c = 's';
+		}
+		tmp = tmp->next;
+	}
+	return (c);
+}
+
+char			ft_symtype(char type, nlist_64 n64, t_env *e)
 {
 	unsigned char	c;
 
 	c = '?';
-	(void)s64;
-	printf("\nn_sect : %d\n", n64.n_sect);
-	printf("name ? %s\n", s64[n64.n_sect].segname);
-	printf("name ? %s\n", s64[n64.n_sect].sectname);
+	// printf("\nn_sect : %d\n", n64.n_sect);
+	// printf("name ? %s\n", s64[n64.n_sect].segname);
+	// printf("name ? %s\n", s64[n64.n_sect].sectname);
 	if (type & N_STAB)
 		c = '-';
 	else if ((type & N_TYPE) == N_UNDF)
@@ -36,22 +60,12 @@ char			ft_symtype(char type, nlist_64 n64, section_64 *s64)
 		c = 'a';
 	else if ((type & N_TYPE) == N_SECT)
 	{
-		// while()
-
-		/*if (n64.n_sect == SECT_TEXT)
-			c = 't';
-		else if (!ft_strcmp(n64.n_sect, SECT_DATA))
-			c = 'd';
-		else if (!ft_strcmp(n64.n_sect, SECT_BSS))
-			c = 'b';
-		else
-			c = 's';*/
+		c = match_sect(c, e, n64.n_sect);
 	}
 	else if ((type & N_TYPE) == N_INDR)
 		c = 'i';
 	if ((n64.n_type & N_EXT) && c != '?')
 		c = ft_toupper(c);
-
 /*	if (s64 == NO_SECT)
 		return (type);
 	// printf("s64[n_sect].sectname : %s\n", s64[n_sect].sectname);
