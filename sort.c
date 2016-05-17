@@ -25,7 +25,7 @@ void	ft_sort(t_list **sym)
 		{
 			sym_next = ((t_sym*)(tmp->next->data));
 			i = 0;
-			while (sym_curr->name[i] != '\0' && sym_next->name[i] != '\0')
+			while (sym_curr->name[i] != '\0' || sym_next->name[i] != '\0')
 			{	
 				if (sym_curr->name[i] < sym_next->name[i])
 					break ;

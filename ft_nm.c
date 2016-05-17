@@ -37,38 +37,37 @@ void			add_sym(t_env *e)
 	nlist_64		*n64;
 	char			*strtab;
 	char			*hex;
-	// char			type;
-	// section_64		*s64;
 	t_sym			*sym;
 
 	i = 0;
-	// s64 = e->mem + sizeof(header) + sizeof(segcmd_64);
 	strtab = e->mem + e->stc->stroff;
 	n64 = e->mem + e->stc->symoff;
-	printf("nsyms : %d\n", e->stc->nsyms);
 	while (i < e->stc->nsyms)
 	{
-		if (n64[i].n_type & N_EXT)
+		char *nam;
+		nam = strtab + n64[i].n_un.n_strx;
+
+		if (nam[0] != 0 && n64[i].n_type < 100)
 		{
 			sym = (t_sym*)malloc(sizeof(t_sym));
 			hex = ft_ltoahex(n64[i].n_value);
 			if (n64[i].n_value == 0)
 			{
 				hex[0] = ' ';
-				sym->addr = ft_strjoin("                ", hex);
+				sym->addr = ft_strjoin("               ", hex);
 			}
 			else
-				sym->addr = ft_strjoin("00000000", hex);
+				sym->addr = ft_strjoin("0000000", hex);
 			sym->symtype = ft_symtype(n64[i].n_type, n64[i], e);
 			sym->name = strtab + n64[i].n_un.n_strx;
-			add_to_list(&e->sym, sym);
+			if (sym->symtype != '-')
+				add_to_list(&e->sym, sym);
+			else
+			{
+				free(sym);
+				sym = NULL;
+			}
 		}
-		else if ((n64[i].n_type & N_TYPE))
-		{
-			sym->name = strtab + n64[i].n_un.n_strx;
-			printf("BONUS : %s\n", sym->name);
-		}
-		// s64 = (void*)s64 + sizeof(section_64);
 		i++;
 	}
 	ft_sort(&e->sym);
@@ -85,7 +84,7 @@ void			get_sects(t_env *e)
 	s64 = (void*)e->sg64 + sizeof(*e->sg64);
 	while (i < e->sg64->nsects)
 	{
-		printf("sectname : %s\n", s64->sectname);
+		// printf("sectname : %s\n", s64->sectname);
 		sec = (t_sect*)malloc(sizeof(t_sect));
 		sec->name = s64->sectname;
 		sec->nb = nb++;
@@ -108,8 +107,8 @@ void			ft_handle_64(t_env *e)
 		if (e->lc->cmd == LC_SEGMENT_64)
 		{
 			e->sg64 = (segcmd_64*)e->lc;
-			printf("segname: %s\n", e->sg64->segname);
-			printf("nsec: %d\n", e->sg64->nsects);
+			// printf("segname: %s\n", e->sg64->segname);
+			// printf("nsec: %d\n", e->sg64->nsects);
 			get_sects(e);
 		}
 		if (e->lc->cmd == LC_SYMTAB)
@@ -120,16 +119,39 @@ void			ft_handle_64(t_env *e)
 		
 		e->lc = (void*)e->lc + e->lc->cmdsize;
 		i++;
-	} 
+	}
+}
+
+void			ft_handle_32(t_env *e)
+{
+	printf("header 32");
+	(void)e;
+}
+
+void			ft_handle_FAT(t_env *e)
+{
+	printf("Fat HEADER\n");
+	(void)e;
 }
 
 void			ft_nm(t_env *e)
 {
 	unsigned int		magic_nb;
 
-	magic_nb = *(int*)e->mem;
+	magic_nb = *(unsigned int*)e->mem;
+	printf("magic_nb : %u\n", magic_nb);
+	printf("MH_MAGIC_64 %u\n", MH_MAGIC_64);
+	printf("MH_MAGIC %u\n", MH_MAGIC);
+	printf("FAT_MAGIC %u\n", FAT_MAGIC);
+	printf("FAT_CIGAM %u\n", FAT_CIGAM);
+	 
+
 	if (magic_nb == MH_MAGIC_64)
 		ft_handle_64(e);
+	else if (magic_nb == MH_MAGIC)
+		ft_handle_32(e);
+	else if (magic_nb == FAT_MAGIC)
+		ft_handle_FAT(e);
 	else
 		printf("not managed yet\n");
 }
