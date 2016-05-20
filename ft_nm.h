@@ -24,9 +24,7 @@
 # include <mach-o/nlist.h>
 # include <mach-o/fat.h>
 # include <ar.h>
-# include <ranlib.h>
-
-#include <sys/types.h>
+# include <mach-o/ranlib.h>
 
 typedef struct mach_header_64		header;
 typedef struct load_command			loadcmd;

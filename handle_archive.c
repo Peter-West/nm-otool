@@ -11,7 +11,7 @@ int				get_size_arch(char *name)
 
 char			*get_name_arch(char *name)
 {
-	return (ft_strstr(name, ARFMAG) + sizeof(ARFMAG));
+	return (ft_strstr(name, ARFMAG) + ft_strlen(ARFMAG));
 }
 
 void			ft_handle_arch(t_env *e)
@@ -31,10 +31,10 @@ void			ft_handle_arch(t_env *e)
 	printf("sizeof(arch_hdr) : %lu, sizeof(*hdr), %lu\n", sizeof(arch_hdr), sizeof(*hdr));
 	while (i < size)
 	{
-		hdr_name = (void*)e->mem + ran->ran_off;
- 		// printf("hdr_name->ar_name : %s\n", hdr_name->ar_name);
-		printf("%d.ran_off : %lld, ran_strx : %lld, %s\n", i, ran[i].ran_off, ran[i].ran_un.ran_strx
+		hdr_name = (void*)e->mem + ran[i].ran_off;
+		printf("%d.ran_off : %u, ran_strx : %s, %s\n", i, ran[i].ran_off, ft_ltoahex(ran[i].ran_un.ran_strx)
 			, get_name_arch(hdr_name->ar_name));
+
 		i++;
 	}
 }
