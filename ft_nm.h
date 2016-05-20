@@ -23,6 +23,8 @@
 # include <mach-o/loader.h>
 # include <mach-o/nlist.h>
 # include <mach-o/fat.h>
+# include <ar.h>
+# include <ranlib.h>
 
 typedef struct mach_header_64		header;
 typedef struct load_command			loadcmd;
@@ -30,6 +32,9 @@ typedef struct segment_command_64	segcmd_64;
 typedef struct symtab_command		symtab;
 typedef struct nlist_64				nlist_64;
 typedef struct section_64			section_64;
+
+typedef struct ar_hdr				arch_hdr;
+typedef struct ranlib				ranlib;
 
 typedef struct 						s_list
 {
@@ -60,11 +65,15 @@ typedef struct						s_env
 	loadcmd							*lc;
 	segcmd_64						*sg64;
 	section_64						*s64;
+
+	t_list							arch;
 }									t_env;
 
 char			ft_symtype(char type, nlist_64 n64, t_env *e);
 void			add_to_list(t_list **list, void *data);
 void			ft_print(t_env *e);
 void			ft_sort(t_list **sym);
+void			ft_handle_arch(t_env *e);
+
 
 #endif /* !FT_NM_H */

@@ -14,7 +14,7 @@ NAME1 := ft_nm
 
 # NAME2 := ft_otool
 
-SRC1 := ft_nm.c symtype.c symlist.c print.c sort.c
+SRC1 := ft_nm.c symtype.c symlist.c print.c sort.c handle_archive.c
 
 # SRC2 := ft_otool.c
 

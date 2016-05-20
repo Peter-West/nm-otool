@@ -134,24 +134,43 @@ void			ft_handle_FAT(t_env *e)
 	(void)e;
 }
 
+void			ft_cigam(t_env *e)
+{
+	(void)e;
+	printf("CIGAM\n");
+}
+
+void			ft_cigam_64(t_env *e)
+{
+	(void)e;
+	printf("CIGAM 64\n");
+
+}
+
 void			ft_nm(t_env *e)
 {
 	unsigned int		magic_nb;
 
 	magic_nb = *(unsigned int*)e->mem;
-	printf("magic_nb : %u\n", magic_nb);
-	printf("MH_MAGIC_64 %u\n", MH_MAGIC_64);
-	printf("MH_MAGIC %u\n", MH_MAGIC);
-	printf("FAT_MAGIC %u\n", FAT_MAGIC);
-	printf("FAT_CIGAM %u\n", FAT_CIGAM);
+	// printf("magic_nb : %u\n", magic_nb);
+	// printf("MH_MAGIC_64 %u\n", MH_MAGIC_64);
+	// printf("MH_MAGIC %u\n", MH_MAGIC);
+	// printf("FAT_MAGIC %u\n", FAT_MAGIC);
+	// printf("FAT_CIGAM %u\n", FAT_CIGAM);
 	 
 
 	if (magic_nb == MH_MAGIC_64)
 		ft_handle_64(e);
 	else if (magic_nb == MH_MAGIC)
 		ft_handle_32(e);
+	else if (magic_nb == FAT_CIGAM)
+		ft_cigam(e);
+	else if (magic_nb == MH_CIGAM_64)
+		ft_cigam_64(e);
 	else if (magic_nb == FAT_MAGIC)
 		ft_handle_FAT(e);
+	else if (!ft_strncmp(e->mem, ARMAG, SARMAG))
+		ft_handle_arch(e);
 	else
 		printf("not managed yet\n");
 }
