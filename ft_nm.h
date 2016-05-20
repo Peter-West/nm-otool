@@ -26,6 +26,8 @@
 # include <ar.h>
 # include <ranlib.h>
 
+#include <sys/types.h>
+
 typedef struct mach_header_64		header;
 typedef struct load_command			loadcmd;
 typedef struct segment_command_64	segcmd_64;

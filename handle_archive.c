@@ -29,12 +29,12 @@ void			ft_handle_arch(t_env *e)
 	ran = (void*)hdr + sizeof(arch_hdr) + get_size_arch(hdr->ar_name) + 4;
 	//printf("size : %ld\n", size);
 	printf("sizeof(arch_hdr) : %lu, sizeof(*hdr), %lu\n", sizeof(arch_hdr), sizeof(*hdr));
-	hdr_name = (void*)e->mem + ran->ran_off;
 	while (i < size)
 	{
+		hdr_name = (void*)e->mem + ran->ran_off;
  		// printf("hdr_name->ar_name : %s\n", hdr_name->ar_name);
 		printf("%d.ran_off : %lld, ran_strx : %lld, %s\n", i, ran[i].ran_off, ran[i].ran_un.ran_strx
-			, get_name_arch(hdr_name));
+			, get_name_arch(hdr_name->ar_name));
 		i++;
 	}
 }
