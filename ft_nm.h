@@ -55,20 +55,29 @@ typedef struct						s_sect
 	char							*name;
 }									t_sect;
 
+typedef struct						s_arch
+{
+	char							*name;
+	unsigned int					off;
+	unsigned int					strx;
+}									t_arch;
+
 typedef struct						s_env
 {
 	t_list							*sym;
 	t_list							*sects;
 	void							*mem;
+	char							*filename;
 	symtab							*stc;
 	header							*h;
 	loadcmd							*lc;
 	segcmd_64						*sg64;
 	section_64						*s64;
 
-	t_list							arch;
+	t_list							*arch;
 }									t_env;
 
+void			ft_nm(t_env *e);
 char			ft_symtype(char type, nlist_64 n64, t_env *e);
 void			add_to_list(t_list **list, void *data);
 void			ft_print(t_env *e);

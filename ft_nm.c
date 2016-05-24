@@ -51,15 +51,24 @@ void			add_sym(t_env *e)
 		{
 			sym = (t_sym*)malloc(sizeof(t_sym));
 			hex = ft_ltoahex(n64[i].n_value);
+			// printf("hex : %s\n", hex);
+			sym->symtype = ft_symtype(n64[i].n_type, n64[i], e);
+			sym->name = strtab + n64[i].n_un.n_strx;
 			if (n64[i].n_value == 0)
 			{
-				hex[0] = ' ';
-				sym->addr = ft_strjoin("               ", hex);
+				if (sym->symtype == 'U')
+				{
+					hex[0] = ' ';
+					sym->addr = ft_strjoin("               ", hex);
+				}
+				else
+				{
+					hex[0] = '0';
+					sym->addr = ft_strjoin("000000000000000", hex);
+				}
 			}
 			else
 				sym->addr = ft_strjoin("0000000", hex);
-			sym->symtype = ft_symtype(n64[i].n_type, n64[i], e);
-			sym->name = strtab + n64[i].n_un.n_strx;
 			if (sym->symtype != '-')
 				add_to_list(&e->sym, sym);
 			else
@@ -77,10 +86,12 @@ void			get_sects(t_env *e)
 {
 	unsigned int			i;
 	section_64				*s64;
-	static int				nb = 1;
+	static int						nb = 1;
 	t_sect					*sec;
 	
 	i = 0;
+	// nb = 1;
+	printf("IXI\n");
 	s64 = (void*)e->sg64 + sizeof(*e->sg64);
 	while (i < e->sg64->nsects)
 	{
@@ -91,6 +102,8 @@ void			get_sects(t_env *e)
 		add_to_list(&e->sects, sec);
 		s64 = (void*)s64 + sizeof(*s64);
 		i++;
+		// printf("sector name : %s\n", sec->name);
+		// printf("i : %d, nb : %d\n", i, nb);
 	}
 }
 
@@ -147,7 +160,7 @@ void			ft_cigam_64(t_env *e)
 
 }
 
-void			ft_cigam(t_env *e)
+void			ft_FAT_cigam(t_env *e)
 {
 	(void)e;
 	printf("CIGAM\n");
@@ -168,7 +181,7 @@ void			ft_nm(t_env *e)
 	if (magic_nb == FAT_MAGIC)
 		ft_handle_FAT(e);
 	else if (magic_nb == FAT_CIGAM)
-		ft_cigam(e);
+		ft_FAT_cigam(e);
 	else if (!ft_strncmp(e->mem, ARMAG, SARMAG))
 		ft_handle_arch(e);
 	else if (magic_nb == MH_CIGAM)
@@ -181,6 +194,7 @@ void			ft_nm(t_env *e)
 		ft_handle_32(e);
 	else
 		printf("not handled yet\n");
+	ft_print(e);
 }
 
 int				main(int argc, char **argv)
@@ -191,6 +205,7 @@ int				main(int argc, char **argv)
 
 	e.sym = NULL;
 	e.sects = NULL;
+	e.arch = NULL;
 	if (argc > 1)
 	{
 		if ((fd = open(argv[1], O_RDONLY)) == -1)
@@ -208,11 +223,13 @@ int				main(int argc, char **argv)
 			ft_putstr_fd("Error while reading memory\n", 2);
 			return (-1);
 		}
+		e.filename = argv[1];
 		ft_nm(&e);
-		ft_print(&e);
+		// ft_print(&e);
 		if (munmap(e.mem, size) < 0)
 		{
 			ft_putstr_fd("Munmap error\n", 2);
+			perror("munmap");
 			return (-1);
 		}
 		if (close(fd) == -1)

@@ -24,11 +24,11 @@ char			match_sect(char c, t_env *e, uint8_t s)
 		sect = ((t_sect*)(tmp->data));
 		if (s == sect->nb)
 		{
-			if (!ft_strcmp(sect->name, SECT_TEXT))
+			if (ft_strcmp(sect->name, SECT_TEXT) == 0)
 				c = 't';
-			else if (!ft_strcmp(sect->name, SECT_DATA))
+			else if (ft_strcmp(sect->name, SECT_DATA) == 0)
 				c = 'd';
-			else if (!ft_strcmp(sect->name, SECT_BSS))
+			else if (ft_strcmp(sect->name, SECT_BSS) == 0)
 				c = 'b';
 			else
 				c = 's';
