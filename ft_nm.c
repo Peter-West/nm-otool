@@ -82,34 +82,30 @@ void			add_sym(t_env *e)
 	ft_sort(&e->sym);
 }
 
-void			get_sects(t_env *e)
+int			get_sects(t_env *e,int nb)
 {
 	unsigned int			i;
 	section_64				*s64;
-	static int						nb = 1;
 	t_sect					*sec;
 	
 	i = 0;
-	// nb = 1;
-	printf("IXI\n");
 	s64 = (void*)e->sg64 + sizeof(*e->sg64);
 	while (i < e->sg64->nsects)
 	{
-		// printf("sectname : %s\n", s64->sectname);
 		sec = (t_sect*)malloc(sizeof(t_sect));
 		sec->name = s64->sectname;
 		sec->nb = nb++;
 		add_to_list(&e->sects, sec);
 		s64 = (void*)s64 + sizeof(*s64);
 		i++;
-		// printf("sector name : %s\n", sec->name);
-		// printf("i : %d, nb : %d\n", i, nb);
 	}
+	return (nb);
 }
 
 void			ft_handle_64(t_env *e)
 {
 	int				i;
+	int						nb = 1;
 
 	i = 0;
 	e->h = (header*)e->mem;
@@ -120,9 +116,7 @@ void			ft_handle_64(t_env *e)
 		if (e->lc->cmd == LC_SEGMENT_64)
 		{
 			e->sg64 = (segcmd_64*)e->lc;
-			// printf("segname: %s\n", e->sg64->segname);
-			// printf("nsec: %d\n", e->sg64->nsects);
-			get_sects(e);
+			nb = get_sects(e, nb);
 		}
 		if (e->lc->cmd == LC_SYMTAB)
 		{
