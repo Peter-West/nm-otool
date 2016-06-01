@@ -16,10 +16,12 @@ void	ft_sort(t_list **sym)
 	t_sym	*sym_curr;
 	t_sym	*sym_next;
 	int		i;
+	int		restart;
 
 	tmp = *sym;
 	while (tmp)
 	{
+		restart = 0;
 		sym_curr = ((t_sym*)(tmp->data));
 		if (tmp->next)
 		{
@@ -33,11 +35,13 @@ void	ft_sort(t_list **sym)
 				{
 					ft_swap_data(((t_sym**)&(tmp->data)), ((t_sym**)&(tmp->next->data)));
 					tmp = *sym;
+					restart = 1;
 					break ;
 				}
 				i++;
 			}
 		}
-		tmp = tmp->next;
+		if (!restart)
+			tmp = tmp->next;
 	}
 }

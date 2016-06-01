@@ -48,7 +48,7 @@ void			ft_handle_arch(t_env *e)
 			// printf("%d.ran_off : %u, ran_strx : %u, %s\n", i, ran[i].ran_off, ran[i].ran_un.ran_strx,
 			// 	get_name_arch(hdr_name->ar_name));
 			ft_nm(e);
-			e->sym = NULL;
+			// e->sym = NULL; verifier si ca marche  ..........
 		}
 		check_ran_off = ran[i].ran_off;
 		i++;

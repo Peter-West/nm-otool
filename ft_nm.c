@@ -31,6 +31,22 @@ void			*ft_get_file(size_t size, int fd)
 	return (read);
 }
 
+char			*zero_str(char *str)
+{
+	int			to_add;
+	char		*ret;
+	int			i;
+
+	i = 0;
+	to_add = 16 - ft_strlen(str);
+	// printf("ft_strlen hex : %zu\n", ft_strlen(hex));
+	// printf("")
+	ret = (char*)malloc(sizeof(char) * to_add);
+	while (i < to_add)
+		ret[i++] = '0';
+	return (ret);
+}
+
 void			add_sym(t_env *e)
 {
 	unsigned int	i;
@@ -51,7 +67,6 @@ void			add_sym(t_env *e)
 		{
 			sym = (t_sym*)malloc(sizeof(t_sym));
 			hex = ft_ltoahex(n64[i].n_value);
-			// printf("hex : %s\n", hex);
 			sym->symtype = ft_symtype(n64[i].n_type, n64[i], e);
 			sym->name = strtab + n64[i].n_un.n_strx;
 			if (n64[i].n_value == 0)
@@ -68,7 +83,7 @@ void			add_sym(t_env *e)
 				}
 			}
 			else
-				sym->addr = ft_strjoin("0000000", hex);
+				sym->addr = ft_strjoin(zero_str(hex), hex);
 			if (sym->symtype != '-')
 				add_to_list(&e->sym, sym);
 			else
@@ -112,7 +127,6 @@ void			ft_handle_64(t_env *e)
 	e->lc = e->mem + sizeof(*e->h);
 	while(i < (int)e->h->ncmds)
 	{
-		
 		if (e->lc->cmd == LC_SEGMENT_64)
 		{
 			e->sg64 = (segcmd_64*)e->lc;
@@ -122,8 +136,7 @@ void			ft_handle_64(t_env *e)
 		{
 			e->stc = (symtab*)e->lc;
 			add_sym(e);
-		}
-		
+		}	
 		e->lc = (void*)e->lc + e->lc->cmdsize;
 		i++;
 	}
@@ -131,34 +144,60 @@ void			ft_handle_64(t_env *e)
 
 void			ft_handle_32(t_env *e)
 {
+	(void)e;
 	printf("header 32");
-	(void)e;
-}
-
-void			ft_handle_FAT(t_env *e)
-{
-	printf("Fat HEADER\n");
-	(void)e;
+	sleep(1);
 }
 
 void			ft_cigam(t_env *e)
 {
 	(void)e;
 	printf("CIGAM\n");
+	sleep(1);
 }
 
 void			ft_cigam_64(t_env *e)
 {
 	(void)e;
 	printf("CIGAM 64\n");
+	sleep(1);
 
 }
 
-void			ft_FAT_cigam(t_env *e)
+int				convert_endian(int num)
 {
-	(void)e;
-	printf("CIGAM\n");
+	int		swapped;
 
+	swapped = ((num>>24)&0xff) | // move byte 3 to byte 0
+		((num<<8)&0xff0000) | // move byte 1 to byte 2
+		((num>>8)&0xff00) | // move byte 2 to byte 1
+		((num<<24)&0xff000000); // byte 0 to byte 3
+	return (swapped);
+}
+
+void			ft_handle_FAT(t_env *e, int lit_end)
+{
+	fat_header	*hdr;
+	fat_arch	*arch;
+	int			cpu_type;
+	int			nb_arch;
+	int			i;
+
+	i = 0;
+	hdr = (fat_header*)e->mem;
+	arch = (fat_arch*)((void*)e->mem + sizeof(fat_header));
+	nb_arch = lit_end ? convert_endian(hdr->nfat_arch) : hdr->nfat_arch;
+	while (i < nb_arch)
+	{
+		cpu_type = lit_end ? convert_endian(arch[i].cputype) : arch[i].cputype;
+		if (cpu_type == CPU_TYPE_X86_64)
+		{
+			// e->mem = (void*)e->mem + convert_endian(arch->offset);
+			e->mem += lit_end ? convert_endian(arch[i].offset) : arch[i].offset;
+			ft_nm(e);
+		}
+		i++;
+	}
 }
 
 void			ft_nm(t_env *e)
@@ -173,9 +212,9 @@ void			ft_nm(t_env *e)
 	// printf("FAT_CIGAM %u\n", FAT_CIGAM);
 	 
 	if (magic_nb == FAT_MAGIC)
-		ft_handle_FAT(e);
+		ft_handle_FAT(e, 0);
 	else if (magic_nb == FAT_CIGAM)
-		ft_FAT_cigam(e);
+		ft_handle_FAT(e, 1);
 	else if (!ft_strncmp(e->mem, ARMAG, SARMAG))
 		ft_handle_arch(e);
 	else if (magic_nb == MH_CIGAM)
@@ -187,7 +226,7 @@ void			ft_nm(t_env *e)
 	else if (magic_nb == MH_MAGIC)
 		ft_handle_32(e);
 	else
-		printf("not handled yet\n");
+		ft_putstr("The file was not recognized as a valid object file.\n");
 	ft_print(e);
 }
 
@@ -219,7 +258,6 @@ int				main(int argc, char **argv)
 		}
 		e.filename = argv[1];
 		ft_nm(&e);
-		// ft_print(&e);
 		if (munmap(e.mem, size) < 0)
 		{
 			ft_putstr_fd("Munmap error\n", 2);
