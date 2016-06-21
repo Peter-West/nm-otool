@@ -31,7 +31,7 @@ void			*ft_get_file(size_t size, int fd)
 	return (read);
 }
 
-char			*zero_str(char *str)
+char			*zero_str_64(char *str)
 {
 	int			to_add;
 	char		*ret;
@@ -41,13 +41,31 @@ char			*zero_str(char *str)
 	to_add = 16 - ft_strlen(str);
 	// printf("ft_strlen hex : %zu\n", ft_strlen(hex));
 	// printf("")
-	ret = (char*)malloc(sizeof(char) * to_add);
+	ret = (char*)malloc(sizeof(char) * to_add + 1);
 	while (i < to_add)
 		ret[i++] = '0';
+	ret[i] = 0;
 	return (ret);
 }
 
-void			add_sym(t_env *e)
+char			*zero_str(char *str)
+{
+	int			to_add;
+	char		*ret;
+	int			i;
+
+	i = 0;
+	to_add = 8 - ft_strlen(str);
+	// printf("ft_strlen hex : %zu\n", ft_strlen(hex));
+	// printf("")
+	ret = (char*)malloc(sizeof(char) * to_add + 1);
+	while (i < to_add)
+		ret[i++] = '0';
+	ret[i] = 0;
+	return (ret);
+}
+
+void			add_sym_64(t_env *e)
 {
 	unsigned int	i;
 	nlist_64		*n64;
@@ -67,7 +85,7 @@ void			add_sym(t_env *e)
 		{
 			sym = (t_sym*)malloc(sizeof(t_sym));
 			hex = ft_ltoahex(n64[i].n_value);
-			sym->symtype = ft_symtype(n64[i].n_type, n64[i], e);
+			sym->symtype = ft_symtype_64(n64[i].n_type, n64[i], e);
 			sym->name = strtab + n64[i].n_un.n_strx;
 			if (n64[i].n_value == 0)
 			{
@@ -80,6 +98,56 @@ void			add_sym(t_env *e)
 				{
 					hex[0] = '0';
 					sym->addr = ft_strjoin("000000000000000", hex);
+				}
+			}
+			else
+				sym->addr = ft_strjoin(zero_str_64(hex), hex);
+			if (sym->symtype != '-')
+				add_to_list(&e->sym, sym);
+			else
+			{
+				free(sym);
+				sym = NULL;
+			}
+		}
+		i++;
+	}
+	ft_sort(&e->sym);
+}
+
+void			add_sym(t_env *e)
+{
+	unsigned int	i;
+	nlist_32		*n;
+	char			*strtab;
+	char			*hex;
+	t_sym			*sym;
+
+	i = 0;
+	strtab = e->mem + e->stc->stroff;
+	n = e->mem + e->stc->symoff;
+	while (i < e->stc->nsyms)
+	{
+		char *nam;
+		nam = strtab + n[i].n_un.n_strx;
+
+		if (nam[0] != 0 && n[i].n_type < 100)
+		{
+			sym = (t_sym*)malloc(sizeof(t_sym));
+			hex = ft_ltoahex(n[i].n_value);
+			sym->symtype = ft_symtype(n[i].n_type, n[i], e);
+			sym->name = strtab + n[i].n_un.n_strx;
+			if (n[i].n_value == 0)
+			{
+				if (sym->symtype == 'U')
+				{
+					hex[0] = ' ';
+					sym->addr = ft_strjoin("       ", hex);
+				}
+				else
+				{
+					hex[0] = '0';
+					sym->addr = ft_strjoin("0000000", hex);
 				}
 			}
 			else
@@ -97,7 +165,7 @@ void			add_sym(t_env *e)
 	ft_sort(&e->sym);
 }
 
-int			get_sects(t_env *e,int nb)
+int			get_sects64(t_env *e,int nb)
 {
 	unsigned int			i;
 	section_64				*s64;
@@ -117,25 +185,45 @@ int			get_sects(t_env *e,int nb)
 	return (nb);
 }
 
+int			get_sects(t_env *e,int nb)
+{
+	unsigned int			i;
+	section					*s;
+	t_sect					*sec;
+	
+	i = 0;
+	s = (void*)e->sg + sizeof(*e->sg);
+	while (i < e->sg->nsects)
+	{
+		sec = (t_sect*)malloc(sizeof(t_sect));
+		sec->name = s->sectname;
+		sec->nb = nb++;
+		add_to_list(&e->sects, sec);
+		s = (void*)s + sizeof(*s);
+		i++;
+	}
+	return (nb);
+}
+
 void			ft_handle_64(t_env *e)
 {
 	int				i;
-	int						nb = 1;
+	int				nb = 1;
 
 	i = 0;
-	e->h = (header*)e->mem;
-	e->lc = e->mem + sizeof(*e->h);
-	while(i < (int)e->h->ncmds)
+	e->h64 = (header_64*)e->mem;
+	e->lc = e->mem + sizeof(*e->h64);
+	while(i < (int)e->h64->ncmds)
 	{
 		if (e->lc->cmd == LC_SEGMENT_64)
 		{
 			e->sg64 = (segcmd_64*)e->lc;
-			nb = get_sects(e, nb);
+			nb = get_sects64(e, nb);
 		}
 		if (e->lc->cmd == LC_SYMTAB)
 		{
 			e->stc = (symtab*)e->lc;
-			add_sym(e);
+			add_sym_64(e);
 		}	
 		e->lc = (void*)e->lc + e->lc->cmdsize;
 		i++;
@@ -144,9 +232,29 @@ void			ft_handle_64(t_env *e)
 
 void			ft_handle_32(t_env *e)
 {
-	(void)e;
-	printf("header 32");
-	sleep(1);
+	int				i;
+	int				nb = 1;
+
+	i = 0;
+	e->h = (header*)e->mem;
+	e->lc = (void*)e->mem + sizeof(*e->h);
+	while(i < (int)e->h->ncmds)
+	{
+		if (e->lc->cmd == LC_SEGMENT)
+		{
+			e->sg = (segcmd*)e->lc;
+			nb = get_sects(e, nb);
+		}
+		if (e->lc->cmd == LC_SYMTAB)
+		{
+			e->stc = (symtab*)e->lc;
+			add_sym(e);
+		}
+		e->lc = (void*)e->lc + e->lc->cmdsize;
+		i++;
+	}
+
+
 }
 
 void			ft_cigam(t_env *e)
@@ -205,11 +313,6 @@ void			ft_nm(t_env *e)
 	unsigned int		magic_nb;
 
 	magic_nb = *(unsigned int*)e->mem;
-	// printf("magic_nb : %u\n", magic_nb);
-	// printf("MH_MAGIC_64 %u\n", MH_MAGIC_64);
-	// printf("MH_MAGIC %u\n", MH_MAGIC);
-	// printf("FAT_MAGIC %u\n", FAT_MAGIC);
-	// printf("FAT_CIGAM %u\n", FAT_CIGAM);
 	 
 	if (magic_nb == FAT_MAGIC)
 		ft_handle_FAT(e, 0);

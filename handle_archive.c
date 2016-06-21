@@ -44,7 +44,12 @@ void			ft_handle_arch(t_env *e)
 			// arch->strx = ran[i].ran_un.ran_strx;
 			// add_to_list(&e->arch, arch);
 			e->mem = (void*)hdr_name + sizeof(arch_hdr) + get_size_arch(hdr->ar_name);
-			printf("%s(%s)\n", e->filename, get_name_arch(hdr_name->ar_name));
+			// printf("\n%s(%s):\n", e->filename, get_name_arch(hdr_name->ar_name));
+			ft_putstr("\n");
+			ft_putstr(e->filename);
+			ft_putstr("(");
+			ft_putstr(get_name_arch(hdr_name->ar_name));
+			ft_putendl("):");
 			// printf("%d.ran_off : %u, ran_strx : %u, %s\n", i, ran[i].ran_off, ran[i].ran_un.ran_strx,
 			// 	get_name_arch(hdr_name->ar_name));
 			ft_nm(e);

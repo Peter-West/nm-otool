@@ -26,12 +26,16 @@
 # include <ar.h>
 # include <mach-o/ranlib.h>
 
-typedef struct mach_header_64		header;
+typedef struct mach_header_64		header_64;
+typedef struct mach_header			header;
 typedef struct load_command			loadcmd;
 typedef struct segment_command_64	segcmd_64;
+typedef struct segment_command		segcmd;
 typedef struct symtab_command		symtab;
 typedef struct nlist_64				nlist_64;
+typedef struct nlist				nlist_32;
 typedef struct section_64			section_64;
+typedef struct section				section;
 
 typedef struct fat_header			fat_header;
 typedef struct fat_arch				fat_arch;
@@ -71,19 +75,22 @@ typedef struct						s_env
 	void							*mem;
 	char							*filename;
 	symtab							*stc;
+	header_64						*h64;
 	header							*h;
 	loadcmd							*lc;
 	segcmd_64						*sg64;
+	segcmd							*sg;
 	section_64						*s64;
 	t_list							*arch;
 }									t_env;
 
 void			ft_nm(t_env *e);
-char			ft_symtype(char type, nlist_64 n64, t_env *e);
+char			ft_symtype_64(char type, nlist_64 n64, t_env *e);
+char			ft_symtype(char type, nlist_32 n, t_env *e);
 void			add_to_list(t_list **list, void *data);
 void			ft_print(t_env *e);
 void			ft_sort(t_list **sym);
 void			ft_handle_arch(t_env *e);
-
+int				convert_endian(int num);
 
 #endif /* !FT_NM_H */

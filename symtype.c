@@ -38,7 +38,7 @@ char			match_sect(char c, t_env *e, uint8_t s)
 	return (c);
 }
 
-char			ft_symtype(char type, nlist_64 n64, t_env *e)
+char			ft_symtype_64(char type, nlist_64 n64, t_env *e)
 {
 	unsigned char	c;
 
@@ -62,6 +62,34 @@ char			ft_symtype(char type, nlist_64 n64, t_env *e)
 	else if ((type & N_TYPE) == N_INDR)
 		c = 'i';
 	if ((n64.n_type & N_EXT) && c != '?')
+		c = ft_toupper(c);
+	return (c);
+}
+
+char			ft_symtype(char type, nlist_32 n, t_env *e)
+{
+	unsigned char	c;
+
+	c = '?';
+	if (type & N_STAB)
+		c = '-';
+	else if ((type & N_TYPE) == N_UNDF)
+	{
+		c = 'u';
+		if (n.n_value != 0)
+			c = 'c';
+	}
+	else if ((type & N_TYPE) == N_PBUD)
+		c = 'u';
+	else if ((type & N_TYPE) == N_ABS)
+		c = 'a';
+	else if ((type & N_TYPE) == N_SECT)
+	{
+		c = match_sect(c, e, n.n_sect);
+	}
+	else if ((type & N_TYPE) == N_INDR)
+		c = 'i';
+	if ((n.n_type & N_EXT) && c != '?')
 		c = ft_toupper(c);
 	return (c);
 }
