@@ -22,7 +22,7 @@
 # include <mach-o/loader.h>
 # include <mach-o/nlist.h>
 
-typedef struct mach_header_64		header;
+typedef struct mach_header_64		header_64;
 typedef struct load_command			loadcmd;
 typedef struct segment_command_64	segcmd_64;
 typedef struct symtab_command		symtab;

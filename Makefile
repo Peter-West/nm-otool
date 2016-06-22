@@ -12,11 +12,11 @@
 
 NAME1 := ft_nm
 
-# NAME2 := ft_otool
+NAME2 := ft_otool
 
 SRC1 := ft_nm.c symtype.c symlist.c print.c sort.c handle_archive.c
 
-# SRC2 := ft_otool.c
+SRC2 := ft_otool.c
 
 CC := clang
 
@@ -30,7 +30,7 @@ OBJ1 := $(SRC1:.c=.o)
 
 OBJ2 := $(SRC2:.c=.o)
 
-all: $(NAME1)
+all: $(NAME1) $(NAME2)
 
 build:
 	make -C libft/
@@ -39,17 +39,17 @@ $(NAME1):
 	$(CC) $(CFLAGS) -c $(SRC1) $(INCLUDES)
 	$(CC) $(CFLAGS) -o $(NAME1) $(OBJ1) $(LIB_LIBFT)
 
-# $(NAME2):
-# 	$(CC) $(CFLAGS) -c $(SRC2) $(INCLUDES)
-# 	$(CC) $(CFLAGS) -o $(NAME2) $(OBJ2) $(LIB_LIBFT)
+$(NAME2):
+	$(CC) $(CFLAGS) -c $(SRC2) $(INCLUDES)
+	$(CC) $(CFLAGS) -o $(NAME2) $(OBJ2) $(LIB_LIBFT)
 
 clean:
 	rm -rf $(OBJ1)
-	# rm -rf $(OBJ2)
+	rm -rf $(OBJ2)
 
 fclean: clean
 	rm -rf $(NAME1)
-	# rm -rf $(NAME2)
+	rm -rf $(NAME2)
 
 re: fclean all
 
