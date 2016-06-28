@@ -37,7 +37,8 @@ void		print_addr(uint64_t addr, int base)
 	char	hex[]="0123456789abcdef";
 	char	offset[base + 1];
 
-	i = base;
+	i = base - 1;
+	offset[base] = '\0';
 	while (i >= 0)
 	{
 		offset[i] = hex[addr % base];
@@ -45,27 +46,28 @@ void		print_addr(uint64_t addr, int base)
 		i--;
 	}
 	ft_putstr(offset);
-	// ft_putstr(" ");
+	ft_putstr(" ");
 }
 
-void		print_data(uint32_t addr, int base)
+void		print_data(unsigned char addr, int base)
 {
 	int		i;
 	char	hex[]="0123456789abcdef";
 	char	offset[base + 1];
 
-	i = base;
+	i = base - 1;
+	offset[base] = '\0';
 	while (i >= 0)
 	{
-		offset[i] = hex[addr % base];
-		addr /= base;
+		offset[i] = hex[addr % 16];
+		addr /= 16;
 		i--;
 	}
-	ft_putstr(offset);
-	// ft_putstr(" ");
+	write(1, offset, base);
+	ft_putstr(" ");
 }
 
-void		print_64(section_64 *s64)
+void		print_64(section_64 *s64, char *mem)
 {
 	uint64_t		i;
 	uint64_t		add;
@@ -79,33 +81,37 @@ void		print_64(section_64 *s64)
 	{
 		print_addr(add, 16);
 		j = 0;
-		while (j < 16)
+		while (j < 16 && i + j < s64->size)
 		{
-			print_data(off, 2);
-			// printf(" %llu", add+off);
+			print_data(*(mem + off), 2);
 			off++;
 			j++;
 		}
 		ft_putendl("");
-		add += 16;
-		i += 16;
+		add += j;
+		i += j;
 	}
 }
 
-section_64	*get_section_text(segcmd_64 *sg64)
+section_64	*get_section_text(segcmd_64 *sg64, t_env *e)
 {
 	uint8_t				i;
-	struct section_64            *s64;
+	struct section_64	*s64;
 
 	i = 0;
 	s64 = (struct section_64*)(sg64 + 1);
-	printf("sg64->nsects : %d\n", sg64->nsects);
+	
 	while (i < sg64->nsects)
 	{
-		// printf("i:%d\n",i);
 		if (ft_strequ(s64->segname, "__TEXT") && ft_strequ(s64->sectname, "__text"))
 		{
-			print_64(s64);
+			if (e->archive != 1)
+			{
+				ft_putstr(e->name);
+				ft_putendl(":");
+			}
+			ft_putendl("(__TEXT,__text) section");
+			print_64(s64, e->mem);
 			return (s64);
 		}
 		s64 += 1;
@@ -114,47 +120,112 @@ section_64	*get_section_text(segcmd_64 *sg64)
 	return (NULL);
 }
 
-void			ft_handle_64(void *mem)
+int				get_size_arch(char *name)
+{
+	char		*size;
+
+	size = ft_strchr(name, '/') + 1;
+	return (ft_atoi(size));
+}
+
+char			*get_name_arch(char *name)
+{
+	return (ft_strstr(name, ARFMAG) + ft_strlen(ARFMAG));
+}
+
+void			ft_handle_arch(t_env *e)
+{
+	arch_hdr	*hdr;
+	arch_hdr	*hdr_name;
+	ranlib		*ran;
+	void		*start;
+	int			i;
+	int			size;
+	unsigned int check_ran_off;
+
+	i = 0;
+	e->archive = 1;
+	check_ran_off = -1;
+	start = (void*)e->mem;
+	hdr = (void*)e->mem + SARMAG;
+	size = *((int *)((void*)hdr + sizeof(arch_hdr) + get_size_arch(hdr->ar_name)));
+	size = size / sizeof(ranlib);
+	ran = (void*)hdr + sizeof(arch_hdr) + get_size_arch(hdr->ar_name) + 4;
+	ft_putstr("Archive : ");
+	ft_putendl(e->name);
+	while (i < size)
+	{
+		if (ran[i].ran_off != check_ran_off)
+		{
+			hdr_name = (void*)start + ran[i].ran_off;
+			e->mem = (void*)hdr_name + sizeof(arch_hdr) + get_size_arch(hdr->ar_name);
+			// ft_putstr("\n");
+			ft_putstr(e->name);
+			ft_putstr("(");
+			ft_putstr(get_name_arch(hdr_name->ar_name));
+			ft_putendl("):");
+			ft_otool(e);
+		}
+		check_ran_off = ran[i].ran_off;
+		i++;
+	}
+	e->mem = start;
+}
+
+void			ft_handle_64(t_env *e)
 {
 	header_64		*h;
 	loadcmd			*lc;
 	segcmd_64		*sg64;
 	int				i;
-	// symtab			*stc;
 
 	i = 0;
-	h = (header_64*)mem;
-	lc = mem + sizeof(*h);
+	h = (header_64*)e->mem;
+	lc = e->mem + sizeof(*h);
 	sg64 = (segcmd_64*)lc;
-	printf("(int)h->ncmds : %d\n", (int)h->ncmds);
 	while(i < (int)h->ncmds)
 	{
 		if (sg64[i].cmd == LC_SEGMENT_64)
 		{
-			printf("heyyyy\n");
-			// stc = (symtab*)lc;
-			// ft_print(stc->nsyms, stc->stroff, stc->symoff, mem);
-			get_section_text(&sg64[i]);
+			get_section_text(&sg64[i], e);
 		}
-		// lc = (void*)lc + lc->cmdsize;
 		i++;
 	}
 }
 
-void			ft_otool(void *mem)
+void			ft_otool(t_env *e)
 {
 	unsigned int		magic_nb;
 
-	magic_nb = *(int*)mem;
+	magic_nb = *(int*)e->mem;
 	if (magic_nb == MH_MAGIC_64)
-		ft_handle_64(mem);
+		ft_handle_64(e);
+	else if (!ft_strncmp(e->mem, ARMAG, SARMAG))
+		ft_handle_arch(e);
+	else if (magic_nb == MH_CIGAM_64)
+		printf("cigam_64\n");
+		// ft_cigam_64(mem, name);
+	else if (magic_nb == MH_MAGIC)
+		printf("mh_magic\n");
+		// ft_handle_32(e);
+	else if (magic_nb == MH_CIGAM)
+		printf("mh_cigam\n");
+		// ft_cigam(e);
+	else if (magic_nb == FAT_MAGIC)
+		printf("fat_magic\n");
+		// ft_handle_FAT(e, 0);
+	else if (magic_nb == FAT_CIGAM)
+		printf("fat_cigam\n");
+		// ft_handle_FAT(e, 1);
+	else
+		ft_putstr("The file was not recognized as a valid object file.\n");
 }
 
 int				main(int argc, char **argv)
 {
 	int				fd;
 	size_t			size;
-	void			*mem;
+	t_env			e;
 
 	if (argc > 1)
 	{
@@ -168,13 +239,15 @@ int				main(int argc, char **argv)
 			ft_putstr_fd("Error getting size\n", 2);
 			return (-1);
 		}
-		if (!(mem = ft_get_file(size, fd)))
+		if (!(e.mem = ft_get_file(size, fd)))
 		{	
 			ft_putstr_fd("Error while reading memory\n", 2);
 			return (-1);
 		}
-		ft_otool(mem);
-		if (munmap(mem, size) < 0)
+		e.archive = 0;
+		e.name = argv[1];
+		ft_otool(&e);
+		if (munmap(e.mem, size) < 0)
 		{
 			ft_putstr_fd("Munmap error\n", 2);
 			return (-1);
