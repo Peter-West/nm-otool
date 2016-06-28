@@ -338,13 +338,20 @@ int				main(int argc, char **argv)
 	int				fd;
 	size_t			size;
 	t_env			e;
+	int				i;
 
 	e.sym = NULL;
 	e.sects = NULL;
 	e.arch = NULL;
-	if (argc > 1)
+	e.is_arch = 0;
+	if (argc > 2)
+		e.multi_files = 1;
+	else
+		e.multi_files = 0; 
+	i = 1;
+	while (i < argc)
 	{
-		if ((fd = open(argv[1], O_RDONLY)) == -1)
+		if ((fd = open(argv[i], O_RDONLY)) == -1)
 		{
 			ft_putstr_fd("File opening failed\n", 2);
 			return (-1);
@@ -359,7 +366,7 @@ int				main(int argc, char **argv)
 			ft_putstr_fd("Error while reading memory\n", 2);
 			return (-1);
 		}
-		e.filename = argv[1];
+		e.filename = argv[i];
 		ft_nm(&e);
 		if (munmap(e.mem, size) < 0)
 		{
@@ -372,8 +379,9 @@ int				main(int argc, char **argv)
 			ft_putstr_fd("Close file error\n", 2);
 			return (-1);
 		}
+		i++;
 	}
-	else
+	if (argc < 1)
 		ft_putstr_fd("Usage: ./ft_nm [filename]\n", 2);
 	return (0);
 }

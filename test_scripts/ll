@@ -1,0 +1,54 @@
+[32mTest nm:[0m
+../libft/libft.a
+../libft/ft_atoi.o
+/usr/share/examshell/venv/lib/python2.7/site-packages/_cffi_backend.so
+./test_files/libft_malloc_x86_64_Darwin.so
+/usr/lib/pam/pam_deny.so.2
+/usr/lib/libgmalloc.dylib
+/usr/lib/dtrace/libdtrace_dyld.dylib
+/usr/lib/libAccountPolicyTranslation.dylib
+/usr/lib/libgmalloc.dylib
+./test_files/bin_32
+./test_files/ft_nm32
+./test_files/main32
+/bin/launchctl
+/bin/echo
+/sbin/ifconfig
+/sbin/mount_smbfs
+/usr/bin/python2.6
+/usr/bin/dc
+/usr/sbin/traceroute
+/usr/bin/ditto
+/usr/bin/sips
+/usr/sbin/ktutil
+/usr/sbin/dsconfigldap
+../libft/libft.a ../libft/ft_atoi.o ./test_files/libft_malloc_x86_64_Darwin.so /usr/lib/libgmalloc.dylib ./test_files/main32 /bin/launchctl /sbin/mount_smbfs /usr/sbin/traceroute /usr/sbin/dsconfigldap
+261,262d260
+< 
+< /usr/lib/libgmalloc.dylib:
+
+[32mTest otool:[0m
+../libft/libft.a
+../libft/ft_atoi.o
+/usr/share/examshell/venv/lib/python2.7/site-packages/_cffi_backend.so
+./test_files/libft_malloc_x86_64_Darwin.so
+/usr/lib/libgmalloc.dylib
+./test_files/bin_32
+./test_files/ft_nm32
+./test_files/main32
+/bin/launchctl
+/bin/echo
+/sbin/ifconfig
+/sbin/mount_smbfs
+/usr/bin/python2.6
+/usr/bin/dc
+/usr/sbin/traceroute
+/usr/lib/pam/pam_deny.so.2
+/usr/lib/libgmalloc.dylib
+/usr/lib/dtrace/libdtrace_dyld.dylib
+/usr/lib/libAccountPolicyTranslation.dylib
+/usr/bin/ditto
+/usr/bin/sips
+/usr/sbin/ktutil
+/usr/sbin/dsconfigldap
+../libft/libft.a ../libft/ft_atoi.o ./test_files/libft_malloc_x86_64_Darwin.so /usr/lib/libgmalloc.dylib ./test_files/main32 /bin/launchctl /sbin/mount_smbfs /usr/sbin/traceroute /usr/sbin/dsconfigldap

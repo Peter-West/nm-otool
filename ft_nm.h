@@ -36,7 +36,6 @@ typedef struct nlist_64				nlist_64;
 typedef struct nlist				nlist_32;
 typedef struct section_64			section_64;
 typedef struct section				section;
-
 typedef struct fat_header			fat_header;
 typedef struct fat_arch				fat_arch;
 typedef struct ar_hdr				arch_hdr;
@@ -74,6 +73,8 @@ typedef struct						s_env
 	t_list							*sects;
 	void							*mem;
 	char							*filename;
+	int								multi_files;
+	int								is_arch;
 	symtab							*stc;
 	header_64						*h64;
 	header							*h;

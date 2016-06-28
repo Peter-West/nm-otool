@@ -26,6 +26,7 @@ void			ft_handle_arch(t_env *e)
 	unsigned int check_ran_off;
 
 	i = 0;
+	e->is_arch = 1;
 	check_ran_off = -1;
 	start = (void*)e->mem;
 	hdr = (void*)e->mem + SARMAG;
@@ -49,5 +50,6 @@ void			ft_handle_arch(t_env *e)
 		check_ran_off = ran[i].ran_off;
 		i++;
 	}
+	e->is_arch = 0;
 	e->mem = start;
 }

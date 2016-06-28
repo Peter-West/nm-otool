@@ -26,11 +26,15 @@
 # include <mach-o/ranlib.h>
 
 typedef struct mach_header_64		header_64;
+typedef struct mach_header			header;
 typedef struct load_command			loadcmd;
 typedef struct segment_command_64	segcmd_64;
+typedef struct segment_command		segcmd;
 typedef struct symtab_command		symtab;
 typedef struct nlist_64				nlist_64;
+typedef struct nlist				nlist_32;
 typedef struct section_64			section_64;
+typedef struct section				section;
 typedef struct fat_header			fat_header;
 typedef struct fat_arch				fat_arch;
 typedef struct ar_hdr				arch_hdr;

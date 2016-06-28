@@ -53,7 +53,12 @@ void			ft_print(t_env *e)
 	t_list		*tmp;
 
 	tmp = e->sym;
-	// ft_putendl("");
+	if (e->multi_files && tmp && !e->is_arch)
+	{
+		ft_putendl("");
+		ft_putstr(e->filename);
+		ft_putendl(":");
+	}
 	while (tmp)
 	{
 		sym = ((t_sym*)(tmp->data));
