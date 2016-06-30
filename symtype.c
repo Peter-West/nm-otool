@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "ft_nm.h"
-#include <stdio.h>
 
 char			match_sect(char c, t_env *e, uint8_t s)
 {

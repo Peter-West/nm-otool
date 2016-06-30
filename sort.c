@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "ft_nm.h"
-#include <stdio.h>
 
 void	ft_swap_data(t_sym **sym0, t_sym **sym1)
 {
