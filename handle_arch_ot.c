@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   handle_archive.c                                   :+:      :+:    :+:   */
+/*   handle_arch_ot.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ppellegr <ppellegr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2014/04/23 20:58:26 by ppellegr          #+#    #+#             */
-/*   Updated: 2014/04/23 20:58:27 by ppellegr         ###   ########.fr       */
+/*   Created: 2014/04/27 22:06:58 by ppellegr          #+#    #+#             */
+/*   Updated: 2014/04/27 22:06:58 by ppellegr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_nm.h"
+#include "ft_otool.h"
 
 int				get_size_arch(char *name)
 {
-	char			*size;
+	char		*size;
 
 	size = ft_strchr(name, '/') + 1;
 	return (ft_atoi(size));
@@ -42,12 +42,11 @@ void			arch_loop(t_env *e, t_ranlib *ran, t_arch_hdr *hdr, int s)
 			hdr_name = (void*)start + ran[i].ran_off;
 			e->mem = (void*)hdr_name + sizeof(t_arch_hdr) +
 				get_size_arch(hdr->ar_name);
-			ft_putstr("\n");
-			ft_putstr(e->filename);
+			ft_putstr(e->name);
 			ft_putstr("(");
 			ft_putstr(get_name_arch(hdr_name->ar_name));
 			ft_putendl("):");
-			ft_nm(e);
+			ft_otool(e);
 		}
 		check_ran_off = ran[i].ran_off;
 		i++;
@@ -58,17 +57,20 @@ void			ft_handle_arch(t_env *e)
 {
 	t_arch_hdr		*hdr;
 	t_ranlib		*ran;
-	int				size;
 	void			*start;
+	int				size;
+	unsigned int	check_ran_off;
 
-	e->is_arch = 1;
+	e->archive = 1;
+	check_ran_off = -1;
 	start = (void*)e->mem;
 	hdr = (void*)e->mem + SARMAG;
 	size = *((int *)((void*)hdr + sizeof(t_arch_hdr) +
 		get_size_arch(hdr->ar_name)));
 	size = size / sizeof(t_ranlib);
 	ran = (void*)hdr + sizeof(t_arch_hdr) + get_size_arch(hdr->ar_name) + 4;
+	ft_putstr("Archive : ");
+	ft_putendl(e->name);
 	arch_loop(e, ran, hdr, size);
-	e->is_arch = 0;
 	e->mem = start;
 }

@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ppellegr <ppellegr@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2014/04/23 20:58:26 by ppellegr          #+#    #+#             */
+/*   Updated: 2014/04/23 20:58:27 by ppellegr         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_nm.h"
-#include <stdio.h>
 
 void			ft_clean_sym(t_env *e)
 {
@@ -11,8 +22,6 @@ void			ft_clean_sym(t_env *e)
 	{
 		if (((t_sym*)(tmp->data))->addr)
 			free(((t_sym*)(tmp->data))->addr);
-		// if (((t_sym*)(tmp->data))->name)
-		// 	free(((t_sym*)(tmp->data))->name);
 		free(((t_sym*)(tmp->data)));
 		tmp->data = NULL;
 		prev = tmp;
@@ -29,12 +38,10 @@ void			ft_clean_sects(t_env *e)
 {
 	t_list		*tmp;
 	t_list		*prev;
-	
+
 	tmp = e->sects;
 	while (tmp)
 	{
-		// if (((t_sect*)(tmp->data))->name)
-			// free(((t_sect*)(tmp->data))->name);
 		free(((t_sect*)(tmp->data)));
 		tmp->data = NULL;
 		prev = tmp;

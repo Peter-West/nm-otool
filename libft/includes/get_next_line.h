@@ -21,7 +21,7 @@
 # include <stdlib.h>
 # include "libft.h"
 
-int		get_next_line(int const fd, char ** line);
+int		get_next_line(int const fd, char **line);
 char	*ft_delete_read_line(char *s, int i);
 int		ft_buffer_filling(int const fd, char **str);
 int		ft_checking_new_line(char *s);

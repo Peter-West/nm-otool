@@ -28,6 +28,6 @@ char	*ft_strcat(char *dest, const char *src)
 		dest[j + i] = src[i];
 		i++;
 	}
-	dest [j + i] = '\0';
+	dest[j + i] = '\0';
 	return (dest);
 }

@@ -38,7 +38,7 @@ char			match_sect(char c, t_env *e, uint8_t s)
 	return (c);
 }
 
-char			ft_symtype_64(char type, nlist_64 n64, t_env *e)
+char			ft_symtype_64(char type, t_nlist_64 n64, t_env *e)
 {
 	unsigned char	c;
 
@@ -66,7 +66,7 @@ char			ft_symtype_64(char type, nlist_64 n64, t_env *e)
 	return (c);
 }
 
-char			ft_symtype(char type, nlist_32 n, t_env *e)
+char			ft_symtype(char type, t_nlist_32 n, t_env *e)
 {
 	unsigned char	c;
 

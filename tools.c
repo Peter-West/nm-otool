@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   symlist.c                                          :+:      :+:    :+:   */
+/*   nm_to.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ppellegr <ppellegr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,21 +12,31 @@
 
 #include "ft_nm.h"
 
-void	add_to_list(t_list **list, void *data)
+off_t			ft_get_size(int fd)
 {
-	t_list		*new_list;
-	t_list		*tmp;
+	struct stat		buf;
 
-	new_list = (t_list*)malloc(sizeof(t_list));
-	new_list->data = data;
-	new_list->next = NULL;
-	if (!(*list))
-		*list = new_list;
-	else
-	{
-		tmp = *list;
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = new_list;
-	}
+	if (fstat(fd, &buf) < 0)
+		return (EXIT_FAILURE);
+	return (buf.st_size);
+}
+
+void			*ft_get_file(size_t size, int fd)
+{
+	void			*read;
+
+	if ((read = mmap(0, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
+		return (NULL);
+	return (read);
+}
+
+int				convert_endian(int num)
+{
+	int		swapped;
+
+	swapped = ((num >> 24) & 0xff) |
+		((num << 8) & 0xff0000) |
+		((num >> 8) & 0xff00) |
+		((num << 24) & 0xff000000);
+	return (swapped);
 }

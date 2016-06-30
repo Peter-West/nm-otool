@@ -12,36 +12,6 @@
 
 #include "libft.h"
 
-int		ft_strlentrim_before(const char *s);
-int		ft_strlentrim_after(const char *s);
-
-char	*ft_strtrim(char const *s)
-{
-	char	*new_s;
-	char	*tmp;
-	int		len;
-	int		i;
-	int		len_before;
-
-	if (s == NULL)
-		return (NULL);
-	len_before = ft_strlentrim_before(s);
-	len = ft_strlen((char *)s) - (len_before + ft_strlentrim_after(s));
-	new_s = (char *)malloc(sizeof(char) * len + 1);
-	if (new_s == NULL)
-		return (NULL);
-	tmp = new_s;
-	i = len_before;
-	while (len--)
-	{
-		*new_s = s[i];
-		new_s++;
-		i++;
-	}
-	*new_s = '\0';
-	return (tmp);
-}
-
 int		ft_strlentrim_before(const char *s)
 {
 	int		i;
@@ -68,4 +38,31 @@ int		ft_strlentrim_after(const char *s)
 		++i;
 	}
 	return (i);
+}
+
+char	*ft_strtrim(char const *s)
+{
+	char	*new_s;
+	char	*tmp;
+	int		len;
+	int		i;
+	int		len_before;
+
+	if (s == NULL)
+		return (NULL);
+	len_before = ft_strlentrim_before(s);
+	len = ft_strlen((char *)s) - (len_before + ft_strlentrim_after(s));
+	new_s = (char *)malloc(sizeof(char) * len + 1);
+	if (new_s == NULL)
+		return (NULL);
+	tmp = new_s;
+	i = len_before;
+	while (len--)
+	{
+		*new_s = s[i];
+		new_s++;
+		i++;
+	}
+	*new_s = '\0';
+	return (tmp);
 }

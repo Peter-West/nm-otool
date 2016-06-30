@@ -12,44 +12,12 @@
 
 #include "libft.h"
 
-char		*ft_reverse(char *s, int j);
-size_t		ft_intlen(long n);
-
 int			ft_hex(int n)
 {
 	if (n > 9)
 		return (n + 39);
 	else
 		return (n);
-}
-
-char		*ft_ltoahex(long n)
-{
-	char	*s;
-	int		i;
-	int		tmp;
-	int		j;
-
-	i = 0;
-	j = 0;
-	if ((s = (char *)malloc(sizeof(char) * ft_intlen(n))) == NULL)
-		return (NULL);
-	if (n < 0)
-	{
-		j++;
-		n = n * -1;
-	}
-	if (n == 0)
-		s[i++] = '0';
-	while (n != 0)
-	{
-		tmp = n % 16;
-		tmp = ft_hex(tmp);
-		s[i++] = tmp + '0';
-		n = n / 16;
-	}
-	s[i] = '\0';
-	return (ft_reverse(s, j));
 }
 
 char		*ft_reverse(char *s, int j)
@@ -89,4 +57,33 @@ size_t		ft_intlen(long n)
 		i++;
 	}
 	return (i);
+}
+
+char		*ft_ltoahex(long n)
+{
+	char	*s;
+	int		i;
+	int		tmp;
+	int		j;
+
+	i = 0;
+	j = 0;
+	if ((s = (char *)malloc(sizeof(char) * ft_intlen(n))) == NULL)
+		return (NULL);
+	if (n < 0)
+	{
+		j++;
+		n = n * -1;
+	}
+	if (n == 0)
+		s[i++] = '0';
+	while (n != 0)
+	{
+		tmp = n % 16;
+		tmp = ft_hex(tmp);
+		s[i++] = tmp + '0';
+		n = n / 16;
+	}
+	s[i] = '\0';
+	return (ft_reverse(s, j));
 }

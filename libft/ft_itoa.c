@@ -12,37 +12,6 @@
 
 #include "libft.h"
 
-char		*ft_reverse(char *s, int j);
-size_t		ft_intlen(int n);
-
-char		*ft_itoa(int n)
-{
-	char	*s;
-	int		i;
-	int		tmp;
-	int		j;
-
-	i = 0;
-	j = 0;
-	if ((s = (char *)malloc(sizeof(char) * ft_intlen(n))) == NULL)
-		return (NULL);
-	if (n < 0)
-	{
-		j++;
-		n = n * -1;
-	}
-	if (n == 0)
-		s[i++] = '0';
-	while (n != 0)
-	{
-		tmp = n % 10;
-		s[i++] = tmp + '0';
-		n = n / 10;
-	}
-	s[i] = '\0';
-	return (ft_reverse(s, j));
-}
-
 char		*ft_reverse(char *s, int j)
 {
 	char	*tmp;
@@ -80,4 +49,32 @@ size_t		ft_intlen(int n)
 		i++;
 	}
 	return (i);
+}
+
+char		*ft_itoa(int n)
+{
+	char	*s;
+	int		i;
+	int		tmp;
+	int		j;
+
+	i = 0;
+	j = 0;
+	if ((s = (char *)malloc(sizeof(char) * ft_intlen(n))) == NULL)
+		return (NULL);
+	if (n < 0)
+	{
+		j++;
+		n = n * -1;
+	}
+	if (n == 0)
+		s[i++] = '0';
+	while (n != 0)
+	{
+		tmp = n % 10;
+		s[i++] = tmp + '0';
+		n = n / 10;
+	}
+	s[i] = '\0';
+	return (ft_reverse(s, j));
 }

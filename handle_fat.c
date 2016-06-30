@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   symlist.c                                          :+:      :+:    :+:   */
+/*   handle_fat.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ppellegr <ppellegr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,21 +12,27 @@
 
 #include "ft_nm.h"
 
-void	add_to_list(t_list **list, void *data)
+void			ft_handle_fat(t_env *e, int lit_end)
 {
-	t_list		*new_list;
-	t_list		*tmp;
+	t_fat_header	*hdr;
+	t_fat_arch		*arch;
+	int				cpu_type;
+	int				nb_arch;
+	int				i;
 
-	new_list = (t_list*)malloc(sizeof(t_list));
-	new_list->data = data;
-	new_list->next = NULL;
-	if (!(*list))
-		*list = new_list;
-	else
+	i = 0;
+	hdr = (t_fat_header*)e->mem;
+	arch = (t_fat_arch*)((void*)e->mem + sizeof(t_fat_header));
+	nb_arch = lit_end ? convert_endian(hdr->nfat_arch) : hdr->nfat_arch;
+	while (i < nb_arch)
 	{
-		tmp = *list;
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = new_list;
+		cpu_type = lit_end ? convert_endian(arch[i].cputype) : arch[i].cputype;
+		if (cpu_type == CPU_TYPE_X86_64)
+		{
+			e->mem += lit_end ?
+				convert_endian(arch[i].offset) : arch[i].offset;
+			ft_nm(e);
+		}
+		i++;
 	}
 }

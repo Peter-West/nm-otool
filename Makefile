@@ -14,9 +14,11 @@ NAME1 := ft_nm
 
 NAME2 := ft_otool
 
-SRC1 := ft_nm.c symtype.c symlist.c print.c sort.c handle_archive.c
+SRC1 := ft_nm.c symtype.c symlist.c print.c sort.c handle_archive.c sym_64.c \
+		sym_32.c handle_32.c handle_64.c handle_fat.c tools.c
 
-SRC2 := ft_otool.c
+SRC2 := ft_otool.c tools.c get_sec_ot.c print_ot.c handle_ot.c \
+		handle_arch_ot.c 
 
 CC := clang
 
@@ -30,7 +32,7 @@ OBJ1 := $(SRC1:.c=.o)
 
 OBJ2 := $(SRC2:.c=.o)
 
-all: $(NAME1) $(NAME2)
+all: build $(NAME1) $(NAME2)
 
 build:
 	make -C libft/
